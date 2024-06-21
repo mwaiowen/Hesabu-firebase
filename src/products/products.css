@@ -1,0 +1,31 @@
+.container {
+  display: flex;
+  align-items: center;
+  column-gap: 25px;
+  width: 100vw;
+  height: 500px;
+}
+.container h1 {
+  font-size: 24px;
+  font-weight: 700;
+  font-style: oblique;
+}
+.input {
+  border-radius: 10px;
+}
+.button {
+  background-color: aquamarine;
+  border-radius: 10px;
+  border: none; /* Remove default border */
+  color: white; /* White text */
+  padding: 15px 32px; /* Some padding */
+  text-align: center; /* Center the text */
+  text-decoration: none; /* Remove underline */
+  display: inline-block; /* Display as a block element */
+  font-size: 16px; /* Set the font size */
+  margin: 4px 2px; /* Add a little space around the button */
+  cursor: pointer;
+}
+.button:hover {
+  background-color: rgb(0, 148, 99);
+}
