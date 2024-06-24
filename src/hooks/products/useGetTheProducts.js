@@ -40,13 +40,13 @@
 
 //             docs.push({ ...data, id });
 
-//             if (
-//               (!catID || data.catID === catID) &&
-//               (!name || data.name == name)
-//             ) {
-//               totalProduct += Number(data.totalPrice);
-//             }
-//           });
+//   if (
+//     (!catID || data.catID === catID) &&
+//     (!name || data.name == name)
+//   ) {
+//     totalProduct += Number(data.totalPrice);
+//   }
+// });
 
 //           setProducts(docs);
 //           setProductTotals({ balance: totalProduct });
