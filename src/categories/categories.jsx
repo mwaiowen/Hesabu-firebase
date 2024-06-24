@@ -16,8 +16,7 @@ const Categories = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    addCategory({ catID, name });
-    //reset the form to null
+    await addCategory({ catID, name });
     setCatID(0);
     setName("");
   };
