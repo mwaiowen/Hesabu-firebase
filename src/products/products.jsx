@@ -7,7 +7,7 @@ import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 
 const Products = () => {
-  const { addProducts, productTotals } = useAddProducts();
+  const { addProducts, productBalances, productQuantity } = useAddProducts();
   const { products } = useGetTheProducts();
 
   const [name, setName] = useState("");
@@ -85,13 +85,14 @@ const Products = () => {
             type="number"
             required
             value={quantity}
+            {...productQuantity.balances}
             onChange={(e) => setQuantity(e.target.value)}
           />
         </div>
         <div className="date">
           <h3>Total</h3>
           <input className="input" type="number" disabled value={totalPrice} />
-          {productTotals.balance}
+          {productBalances.balance}
         </div>
 
         <button className="button" type="submit">
@@ -111,8 +112,8 @@ const Products = () => {
                 <p>Name: {name}</p>
                 <p>Default Price: {defaultPrice}</p>
                 <p>Quantity: {quantity}</p>
-                <p>Total Price: {totalPrice}</p>
-                <p>Balance: {productTotals.balance}</p>
+                <p>Total Price: {productQuantity[totalPrice]}</p>
+                <p>Balance :{productBalances[product.id]}</p>
               </li>
             );
           })}
