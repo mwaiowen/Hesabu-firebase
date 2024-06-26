@@ -7,7 +7,8 @@ import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 
 const Products = () => {
-  const { addProducts, productBalances, productQuantity } = useAddProducts();
+  const { addProducts, productBalances, productQuantity, subtractFromProduct } =
+    useAddProducts();
   const { products } = useGetTheProducts();
 
   const [name, setName] = useState("");
@@ -78,21 +79,18 @@ const Products = () => {
             onChange={(e) => setDefaultPrice(e.target.value)}
           />
         </div>
-        <div className="date">
+        <div className="quantity">
           <h3>Quantity</h3>
           <input
             className="input"
-            type="number"
             required
             value={quantity}
-            {...productQuantity.balances}
             onChange={(e) => setQuantity(e.target.value)}
           />
         </div>
-        <div className="date">
+        <div className="total">
           <h3>Total</h3>
           <input className="input" type="number" disabled value={totalPrice} />
-          {productBalances.balance}
         </div>
 
         <button className="button" type="submit">
@@ -103,17 +101,16 @@ const Products = () => {
         <h1>Products List</h1>
         <ul>
           {products.map((product, index) => {
-            const { catID, name, defaultPrice, quantity, totalPrice } = product;
-            console.log(`Product ${index + 1}:`, product);
+            const { catID, name, defaultPrice, totalPrice } = product;
 
             return (
               <li key={index} className="list">
                 <h4>Category ID: {catID}</h4>
                 <p>Name: {name}</p>
                 <p>Default Price: {defaultPrice}</p>
-                <p>Quantity: {quantity}</p>
-                <p>Total Price: {productQuantity[totalPrice]}</p>
-                <p>Balance :{productBalances[product.id]}</p>
+                <p>Quantity: {productQuantity[product.id]} </p>
+                <p>Total Price: {totalPrice}</p>
+                <p>Balance: {productBalances[product.id]}</p>
               </li>
             );
           })}
