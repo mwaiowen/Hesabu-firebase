@@ -5,10 +5,11 @@ import { useGetTheProducts } from "../hooks/products/useGetTheProducts";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
+import { useAddTransaction } from "../hooks/transactions/useAddTransactions";
 
 const Products = () => {
-  const { addProducts, productBalances, productQuantity, subtractFromProduct } =
-    useAddProducts();
+  const { addProducts, productBalances, productQuantity } = useAddProducts();
+
   const { products } = useGetTheProducts();
 
   const [name, setName] = useState("");
@@ -101,14 +102,13 @@ const Products = () => {
         <h1>Products List</h1>
         <ul>
           {products.map((product, index) => {
-            const { catID, name, defaultPrice, totalPrice } = product;
-
+            const { catID, name, defaultPrice, totalPrice, quantity } = product;
             return (
               <li key={index} className="list">
                 <h4>Category ID: {catID}</h4>
                 <p>Name: {name}</p>
                 <p>Default Price: {defaultPrice}</p>
-                <p>Quantity: {productQuantity[product.id]} </p>
+                <p>Quantity: {quantity} </p>
                 <p>Total Price: {totalPrice}</p>
                 <p>Balance: {productBalances[product.id]}</p>
               </li>

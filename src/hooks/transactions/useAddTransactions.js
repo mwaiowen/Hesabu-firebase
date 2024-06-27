@@ -1,11 +1,12 @@
 import {
   addDoc,
   collection,
-  query,
-  where,
   getDocs,
-  updateDoc,
+  query,
   serverTimestamp,
+  updateDoc,
+  where,
+  doc,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useGetUserInfo } from "../user/useGetUserInfo";
@@ -14,14 +15,15 @@ import { useEffect, useState } from "react";
 export const useAddTransaction = () => {
   const [productValue, setProductValue] = useState({});
   const [productQty, setProductQty] = useState({});
+
   const { userID } = useGetUserInfo();
 
   const transactionCollectionRef = collection(db, "transactions");
   const productsCollectionRef = collection(db, "products");
 
-  const fetchAndUpdateProducts = async () => {
+  const fetchUpdateProducts = async () => {
     try {
-      const q = query(productsCollectionRef);
+      const q = query(transactionCollectionRef);
       const querySnapshot = await getDocs(q);
 
       const updatedProductValue = {};
@@ -37,7 +39,7 @@ export const useAddTransaction = () => {
       setProductValue(updatedProductValue);
     } catch (error) {
       console.error(
-        "Error fetching and updating product transactions:",
+        "Error fetching and updating product transactions doc:",
         error.message
       );
     }
@@ -49,77 +51,6 @@ export const useAddTransaction = () => {
     return !nameSnapShot.empty;
   };
 
-  // const addTransaction = async ({ name, value, quantity, date }) => {
-  //   try {
-  //     const parsedQuantity = parseInt(quantity, 10);
-  //     const parsedValue = parseInt(value, 10);
-
-  //     const nameExists = await checkNameExistence(name);
-  //     if (!nameExists) {
-  //       throw new Error("No name found with that input");
-  //     } else {
-  //       await addDoc(transactionCollectionRef, {
-  //         userID,
-  //         name,
-  //         quantity: parsedQuantity,
-  //         value: parsedValue,
-  //         date,
-  //         createdAt: serverTimestamp(),
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding transaction:", error.message);
-  //   }
-  // };
-
-  // const addTransaction = async ({ name, value, quantity, date }) => {
-  //   try {
-  //     const parsedQuantity = parseInt(quantity, 10);
-  //     const parsedValue = parseInt(value, 10);
-
-  //     const nameExists = await checkNameExistence(name);
-  //     if (!nameExists) {
-  //       throw new Error("No name found with that input");
-  //     } else {
-  //       // Add transaction to transactions collection
-  //       await addDoc(transactionCollectionRef, {
-  //         userID,
-  //         name,
-  //         quantity: parsedQuantity,
-  //         value: parsedValue,
-  //         date,
-  //         createdAt: serverTimestamp(),
-  //       });
-
-  //       // Update product quantity in products collection
-  //       const productQuery = query(
-  //         productsCollectionRef,
-  //         where("name", "==", name)
-  //       );
-  //       const productSnapshot = await getDocs(productQuery);
-  //       if (!productSnapshot.empty) {
-  //         const productId = productSnapshot.docs[0].id;
-  //         const currentQuantity = productSnapshot.docs[0].data().quantity || 0;
-  //         const newQuantity = currentQuantity - parsedQuantity;
-
-  //         await db.doc(`products/${productId}`).update({
-  //           quantity: newQuantity,
-  //         });
-
-  //         // Update local state for product quantity
-  //         setProductQty((prevProductQty) => ({
-  //           ...prevProductQty,
-  //           [productId]: newQuantity,
-  //         }));
-  //       } else {
-  //         throw new Error("Product not found");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding transaction:", error.message);
-  //   }
-  // };
-
   const addTransaction = async ({ name, value, quantity, date }) => {
     try {
       const parsedQuantity = parseInt(quantity, 10);
@@ -127,14 +58,14 @@ export const useAddTransaction = () => {
 
       const nameExists = await checkNameExistence(name);
       if (!nameExists) {
-        throw new Error("No product found with that name");
+        throw new Error(`No product found with this name: ${name}`);
       }
 
       await addDoc(transactionCollectionRef, {
         userID,
         name,
-        quantity: parsedQuantity,
         value: parsedValue,
+        quantity: parsedQuantity,
         date,
         createdAt: serverTimestamp(),
       });
@@ -147,33 +78,40 @@ export const useAddTransaction = () => {
 
       if (!productSnapshot.empty) {
         const productId = productSnapshot.docs[0].id;
-        const currentQuantity = productSnapshot.docs[0].data().quantity || 0;
-        const newQuantity = currentQuantity - parsedQuantity;
+        const updatedQuantity =
+          parsedQuantity + (productSnapshot.docs[0].data().quantity || 0);
+        const updatedValue =
+          parsedValue + (productSnapshot.docs[0].data().value || 0);
 
         await updateDoc(doc(productsCollectionRef, productId), {
-          quantity: newQuantity,
+          quantity: updatedQuantity,
+          value: updatedValue,
         });
 
-        setProductQty((prevProductQty) => ({
-          ...prevProductQty,
-          [productId]: newQuantity,
-        }));
+        setProductQty(updatedQuantity);
+        setProductValue(updatedValue);
       } else {
         throw new Error("Product not found after adding transaction");
       }
     } catch (error) {
-      console.error("Error adding transaction:", error.message);
+      console.log("Error adding transaction", error.message);
     }
   };
 
   useEffect(() => {
     console.log("I got cleaned ");
-    fetchAndUpdateProducts();
+    fetchUpdateProducts();
   }, []);
+
+  // Return productQty as negative value directly
+  const transactionProductQty = productQty ? -Math.abs(productQty) : 0;
+  const transactionProductValue = productValue ? -Math.abs(productValue) : 0;
 
   return {
     addTransaction,
-    productQty,
+    transactionProductQty,
+    transactionProductValue,
     productValue,
+    productQty,
   };
 };
